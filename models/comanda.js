@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-let cistellaSchema = new mongoose.Schema({
+
+let comandaSchema = new mongoose.Schema({
     client: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'clients',
@@ -23,8 +24,21 @@ let cistellaSchema = new mongoose.Schema({
             min: 0.01
         }
     }],
+    preuTotal: {
+        type: Number,
+        min: 0.01
+    },
+    estatComanda: {
+        type: String,
+        required: true,
+        enum: ['Cancelat', 'Preparacio', 'Enviat', 'Entregat', 'Despositat']
+    },
+    enviament: {
+        type: Boolean,
+        required: true
+    },
+    puntRecogida: {
+        type: Boolean,
+        requires: true
+    }
 });
-
-
-let Cistella = mongoose.model('cistellas', cistellaSchema);
-module.exports = Cistella;

@@ -14,7 +14,7 @@ let userSchema = new mongoose.Schema({
         minlength: 8
     },
     rol: {
-        typr: String,
+        type: String,
         required: true,
         enum: ['client', 'admin']
     }
