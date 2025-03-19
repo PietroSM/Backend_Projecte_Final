@@ -31,7 +31,6 @@ let clientSchema = new mongoose.Schema({
     },
     adresa:{
         type: String,
-        required: true,
         maxlength: 100
     }
 });
