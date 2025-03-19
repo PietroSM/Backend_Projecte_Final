@@ -36,7 +36,6 @@ let producteSchema = new mongoose.Schema({
     },
     adresa:{
         type: String,
-        required: true,
         maxlength: 100
     },
     enviament: {

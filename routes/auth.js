@@ -15,7 +15,6 @@ router.post('/login', async(req, res) => {
     let alies = req.body.alies;
     let contrasenya = req.body.contrasenya;
 
-
     let existeixUsuari = await User.findOne({
         alies: alies,
     });
@@ -82,10 +81,10 @@ router.post('/registrar', async(req, res) => {
 
 
 
-router.get('/validate', async(req, res) => {
+router.get('/validar', async(req, res) => {
     let token = req.headers['authorization'];
 
-    if(validarToken(roken)){
+    if(validarToken(token)){
         res.status(200).send({result: true});
     }else {
         res.send({result: false});
