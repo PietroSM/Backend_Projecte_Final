@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const auth = require(__dirname+"/routes/auth");
+const producte = require(__dirname+"/routes/producte");
+
 
 
 mongoose.connect(process.env.DB);
@@ -24,5 +26,7 @@ app.use('/public', express.static(__dirname + '/public'));
 
 app.use(express.json());
 app.use('/auth', auth);
+app.use('/producte', producte);
+
 
 app.listen(process.env.PORT);

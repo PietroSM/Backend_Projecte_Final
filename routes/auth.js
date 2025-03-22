@@ -84,10 +84,17 @@ router.post('/registrar', async(req, res) => {
 router.get('/validar', async(req, res) => {
     let token = req.headers['authorization'];
 
-    if(validarToken(token)){
-        res.status(200).send({result: true});
-    }else {
-        res.send({result: false});
+    try{
+        if(validarToken(token)){
+            console.log("piola");
+            res.status(200).send({result: true});
+        }else {
+            console.log("piolant");
+            res.status(403).send({result: false});
+        }
+    } catch(error){
+        console.log(error);
+        res.send({result: false})
     }
 });
 
