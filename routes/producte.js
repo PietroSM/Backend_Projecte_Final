@@ -10,8 +10,42 @@ const Producte = require(__dirname + '/../models/producte.js');
 let router = express.Router();
 
 
+//Llistat dels productes. Afegir mine
+router.get('/', async(req, res) => {
+    try{
+        const resultat = await Producte.find();
+
+        if(resultat.length > 0){
+            res.status(200).send({productes: resultat});
+        }else{
+            res.status(404).send({error: "No hi ha productes en el sistema"});
+        }
+
+    }catch(error){
+        res.status(500).send({error: "Error obtenint productes"});
+    }
+});
+
+
+//Detalls d'un producte específic.
+router.get('/:id', async(req, res) => {
+    try{
+        const resultat = await Producte.findById(req.params.id);
+
+        if(resultat){
+            res.status(200).send({producte: resultat});
+        }else{
+            res.status(404).send({error: "Producte no trobat"});
+        }
+    }catch(error){
+        res.status(500).send({error: "Error buscant el producte indicat"});
+    }
+});
+
+
+
 //TODO Fer les comprovacions de que les dades estan be i no ni ha errors d'unics
-router.post('/afegir', async(req,res) => {
+router.post('/afegir', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);
     
