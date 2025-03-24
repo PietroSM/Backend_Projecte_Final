@@ -13,7 +13,7 @@ let router = express.Router();
 //Llistat dels productes. Afegir mine
 router.get('/', async(req, res) => {
     try{
-        const resultat = await Producte.find();
+        const resultat = await Producte.find().populate("client");
 
         if(resultat.length > 0){
             res.status(200).send({productes: resultat});
@@ -75,7 +75,7 @@ router.post('/afegir', async(req, res) => {
                 client: idClient,
                 stock: req.body.stock,
                 preu: req.body.preu,
-                imatge: `/public/productes/${nomImatge}`,
+                imatge: `http://localhost:8080/public/productes/${nomImatge}`,
                 lat: req.body.lat,
                 lng: req.body.lng,
                 enviament: req.body.enviament,
