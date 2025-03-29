@@ -30,10 +30,44 @@ router.get('/', async(req, res) => {
 //Detalls d'un producte específic.
 router.get('/:id', async(req, res) => {
     try{
-        const resultat = await Producte.findById(req.params.id);
+        console.log("hola");
+        const resultat = await Producte.findById(req.params.id).populate('client');
+        let token = req.headers['authorization'];
+        let validar = validarToken(token);
+        
+        let idClient = validar.id;
+        let propietat = false
+
 
         if(resultat){
-            res.status(200).send({producte: resultat});
+            if(idClient == resultat.client._id){
+                propietat = true;
+            }
+
+            const producte = {
+                'nom': resultat.nom,
+                'stock': resultat.stock,
+                'preu': resultat.prue,
+                'imatge': resultat.imatge,
+                'lat': resultat.lat,
+                'lng': resultat.lng,
+                'enviament': resultat.enviament,
+                'temporada': resultat.temporada,
+                'tipus': resultat.tipus,
+                'id': resultat._id,
+                'client': {
+                    'id': resultat.client._id,
+                    'nom': resultat.client.nom,
+                    'cognom': resultat.client.cognom,
+                    'correu': resultat.client.correu,
+                    'imatge': resultat.client.imatge,
+                    'lat': resultat.client.lat,
+                    'lng': resultat.client.lng
+                },
+                'propietat': propietat
+            }
+
+            res.status(200).send({producte: producte});
         }else{
             res.status(404).send({error: "Producte no trobat"});
         }
