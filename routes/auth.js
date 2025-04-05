@@ -64,7 +64,7 @@ router.post('/registrar', async(req, res) => {
                 nom: req.body.nom,
                 cognom: req.body.cognom,
                 correu: req.body.correu,
-                imatge: `/public/uploads/${nomImatge}`,
+                imatge: `http://localhost:8080/public/uploads/${nomImatge}`,
                 lat: req.body.lat,
                 lng: req.body.lng
             });

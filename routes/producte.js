@@ -14,9 +14,36 @@ let router = express.Router();
 router.get('/', async(req, res) => {
     try{
         const resultat = await Producte.find().populate("client");
-
+        let productes = [];
         if(resultat.length > 0){
-            res.status(200).send({productes: resultat});
+
+            resultat.forEach(element => {
+                const producte = {
+                    'nom': element.nom,
+                    'stock': element.stock,
+                    'preu': element.preu,
+                    'imatge': element.imatge,
+                    'lat': element.lat,
+                    'lng': element.lng,
+                    'enviament': element.enviament,
+                    'temporada': element.temporada,
+                    'tipus': element.tipus,
+                    'id': element._id,
+                    'client': {
+                        'id': element.client._id,
+                        'nom': element.client.nom,
+                        'cognom': element.client.cognom,
+                        'correu': element.client.correu,
+                        'imatge': element.client.imatge,
+                        'lat': element.client.lat,
+                        'lng': element.client.lng
+                    },
+                };
+                productes.push(producte);
+            });
+
+
+            res.status(200).send({productes: productes});
         }else{
             res.status(404).send({error: "No hi ha productes en el sistema"});
         }
@@ -47,7 +74,7 @@ router.get('/:id', async(req, res) => {
             const producte = {
                 'nom': resultat.nom,
                 'stock': resultat.stock,
-                'preu': resultat.prue,
+                'preu': resultat.preu,
                 'imatge': resultat.imatge,
                 'lat': resultat.lat,
                 'lng': resultat.lng,

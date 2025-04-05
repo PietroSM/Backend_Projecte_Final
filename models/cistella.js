@@ -17,7 +17,7 @@ let cistellaSchema = new mongoose.Schema({
             required: true,
             min: 1
         }, 
-        price: {
+        preu: {
             type: Number,
             required: true,
             min: 0.01

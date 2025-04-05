@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const auth = require(__dirname+"/routes/auth");
 const producte = require(__dirname+"/routes/producte");
+const cistella = require(__dirname+"/routes/cistella");
 
 
 
@@ -27,6 +28,7 @@ app.use('/public', express.static(__dirname + '/public'));
 app.use(express.json());
 app.use('/auth', auth);
 app.use('/producte', producte);
+app.use('/cistella', cistella);
 
 
 app.listen(process.env.PORT);
