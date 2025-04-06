@@ -68,7 +68,92 @@ router.post('/', async(req, res) => {
 });
 
 
+//Obtindre el llistat de productes de una cistella.
 router.get('/', async(req, res) => {
+    let token = req.headers['authorization'];
+    let resultat = validarToken(token);
+    
+    let idClient = resultat.id;
+
+    let productes = [];
+    let preuTotal = 0;
+
+    try {
+        // const existeixCistella = await Cistella.findOne({
+        //     client : idClient
+        // }).populate('productes.producte').populate('productes.producte.client').lean();
+        const existeixCistella = await Cistella.findOne({ client: idClient })
+            .populate({
+                path: 'productes.producte',
+                populate: {
+                    path: 'client',
+                    model: 'clients'
+                }
+            })
+            .lean();
+
+
+        if(existeixCistella) {
+            
+            existeixCistella.productes.forEach(element => {
+
+                console.log(element);
+                productes.push({
+                    producte: {
+                                'nom': element.producte.nom,
+                                'stock': element.producte.stock,
+                                'preu': element.producte.preu,
+                                'imatge': element.producte.imatge,
+                                'lat': element.producte.lat,
+                                'lng': element.producte.lng,
+                                'enviament':element.producte.enviament,
+                                'temporada': element.producte.temporada,
+                                'tipus': element.producte.tipus,
+                                'id': element.producte._id,
+                                'client': {
+                                    'id': element.producte.client._id,
+                                    'nom': element.producte.client.nom,
+                                    'cognom': element.producte.client.cognom,
+                                    'correu': element.producte.client.correu,
+                                    'imatge': element.producte.client.imatge,
+                                    'lat': element.producte.client.lat,
+                                    'lng': element.producte.client.lng
+                            }
+                    },
+                    quantitat: element.quantitat,
+                    preu: element.preu
+                });
+
+                console.log("preu" + element.preu);
+                preuTotal += element.preu
+                console.log(preuTotal);
+
+
+            });
+            // console.log(JSON.stringify(productes, null, 2));
+
+
+
+            const resultatCistella = {
+                productes: productes,
+                idCistella: existeixCistella._id,
+                preuTotal: preuTotal
+            };
+
+            console.log(resultatCistella);
+
+            res.status(200).send({Cistella: resultatCistella});
+
+        } else {
+
+        }
+
+
+
+    } catch (error) {
+        
+    }
+
 
 });
 
