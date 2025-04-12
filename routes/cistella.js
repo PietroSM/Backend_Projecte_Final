@@ -9,7 +9,7 @@ const Cistella = require(__dirname+'/../models/cistella.js');
 
 let router = express.Router();
 
-
+//TODO arreglar que se puguen guardar mes duna cosa en la cistella
 //TODO falta restar eixa quantitat al producte
 router.post('/', async(req, res) => {
     let token = req.headers['authorization'];
@@ -17,7 +17,7 @@ router.post('/', async(req, res) => {
     
     let idClient = resultat.id;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     try{
 
@@ -25,8 +25,9 @@ router.post('/', async(req, res) => {
             client : idClient
         });
 
+        // console.log("hola" +existeixCistella);
         
-        if(existeixCistella > 0){
+        if(existeixCistella){
             
             const afegirProducte = await Cistella.findOneAndUpdate(
                 {client: idClient},
@@ -54,11 +55,11 @@ router.post('/', async(req, res) => {
                 }]
             });
             
-            console.log(novaCistella);
+            // console.log(novaCistella);
 
             const resultatNovaCistella = await novaCistella.save();
 
-            console.log("hola" + resultatNovaCistella);
+            // console.log("hola" + resultatNovaCistella);
 
             res.status(201).send({resultat: "S'ha afegit correctament" })
         }
@@ -97,7 +98,7 @@ router.get('/', async(req, res) => {
             
             existeixCistella.productes.forEach(element => {
 
-                console.log(element);
+                // console.log(element);
                 productes.push({
                     producte: {
                                 'nom': element.producte.nom,
@@ -113,20 +114,23 @@ router.get('/', async(req, res) => {
                                 'client': {
                                     'id': element.producte.client._id,
                                     'nom': element.producte.client.nom,
-                                    'cognom': element.producte.client.cognom,
-                                    'correu': element.producte.client.correu,
+                                    'preu': element.producte.client.preu,
                                     'imatge': element.producte.client.imatge,
                                     'lat': element.producte.client.lat,
-                                    'lng': element.producte.client.lng
-                            }
+                                    'lng': element.producte.client.lng,
+                                    'enviament': element.producte.client.enviament,
+                                    'recogida': element.producte.client.recogida,
+                                    'temporada': element.producte.client.temporada,
+                                    'tipus': element.producte.client.tipus
+                                }
                     },
                     quantitat: element.quantitat,
                     preu: element.preu
                 });
 
-                console.log("preu" + element.preu);
+                // console.log("preu" + element.preu);
                 preuTotal += element.preu
-                console.log(preuTotal);
+                // console.log(preuTotal);
 
 
             });
@@ -140,9 +144,10 @@ router.get('/', async(req, res) => {
                 preuTotal: preuTotal
             };
 
-            console.log(resultatCistella);
+            let idCistella =  existeixCistella._id;
+            // console.log(resultatCistella);
 
-            res.status(200).send({Cistella: resultatCistella});
+            res.status(200).send({productes, idCistella, preuTotal});
 
         } else {
 

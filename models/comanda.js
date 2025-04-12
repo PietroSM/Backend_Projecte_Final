@@ -18,7 +18,7 @@ let comandaSchema = new mongoose.Schema({
             required: true,
             min: 1
         }, 
-        price: {
+        preu: {
             type: Number,
             required: true,
             min: 0.01
@@ -40,5 +40,13 @@ let comandaSchema = new mongoose.Schema({
     puntRecogida: {
         type: Boolean,
         requires: true
-    }
+    },
+    Vendedor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'clients',
+        required: true
+    },
 });
+
+let Comanda = mongoose.model('comandas', comandaSchema);
+module.exports = Comanda;
