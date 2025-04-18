@@ -17,17 +17,16 @@ router.post('/', async(req, res) => {
     
     let idClient = resultat.id;
 
-    // console.log(req.body);
-
+    
     try{
-
+        
         const existeixCistella = await Cistella.find({
             client : idClient
         });
-
-        // console.log("hola" +existeixCistella);
         
-        if(existeixCistella){
+        
+        if(existeixCistella > 0){
+            
             
             const afegirProducte = await Cistella.findOneAndUpdate(
                 {client: idClient},
@@ -55,7 +54,7 @@ router.post('/', async(req, res) => {
                 }]
             });
             
-            // console.log(novaCistella);
+            console.log("hola");
 
             const resultatNovaCistella = await novaCistella.save();
 
