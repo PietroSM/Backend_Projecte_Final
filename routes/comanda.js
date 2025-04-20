@@ -117,7 +117,7 @@ router.get('/vendes', async(req, res) => {
     let idClient = resultat.id;
 
     try {
-        const existeixComanda = await Comanda.find({ client: idClient })
+        const existeixComanda = await Comanda.find({ Vendedor: idClient })
         .populate({
             path: 'productes.producte',
             populate: {
@@ -207,6 +207,27 @@ router.get('/vendes', async(req, res) => {
     }
 
 
+});
+
+
+router.put('/estat', async(req, res) => {
+    try {
+
+        const resultat = await Comanda.findByIdAndUpdate(
+            req.body.id,
+            { estatComanda: req.body.estatComanda },
+            {new: true}
+        );
+
+        if(resultat){
+            console.log("hola");
+            res.status(200);
+        }
+
+
+    } catch (error) {
+        
+    }
 });
 
 

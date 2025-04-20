@@ -13,11 +13,23 @@ let router = express.Router();
 //Llistat dels productes. Afegir mine
 router.get('/', async(req, res) => {
     try{
+        let token = req.headers['authorization'];
+        let validar = validarToken(token);
+        
+        let idClient = validar.id;
+        let propietat = false
+
+
         const resultat = await Producte.find().populate("client");
         let productes = [];
         if(resultat.length > 0){
 
+            
             resultat.forEach(element => {
+                if(idClient == element.client._id){
+                    propietat = true;
+                }
+
                 const producte = {
                     'nom': element.nom,
                     'stock': element.stock,
@@ -38,6 +50,7 @@ router.get('/', async(req, res) => {
                         'lat': element.client.lat,
                         'lng': element.client.lng
                     },
+                    'propietat': propietat
                 };
                 productes.push(producte);
             });
