@@ -27,6 +27,16 @@ router.post('/login', async(req, res) => {
 });
 
 
+router.get('/client', async(req, res) => {
+
+    let token = req.headers['authorization'];
+    let validar = validarToken(token);
+    let idClient = validar.id;
+
+    res.status(200).send({idClient});
+});
+
+
 //TODO Fer les comprovacions de que les dades estan be i no ni ha errors d'unics
 router.post('/registrar', async(req, res) => {
     try{

@@ -5,7 +5,7 @@ let generarToken = (id, login, rol) => jwt.sign(
     process.env.SECRET,
     {expiresIn: "24 hours"});
 
-//TODO ni ha que procesar el token i llevar el bearen
+
 let validarToken = token => {
     try {
         console.log();
@@ -14,7 +14,7 @@ let validarToken = token => {
         return resultat;
     } catch (e) {
 
-        // console.log(e);
+        console.log(e);
         return false;
     }
 }
