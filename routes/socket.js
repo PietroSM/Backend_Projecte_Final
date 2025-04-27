@@ -47,6 +47,7 @@ module.exports = function (io) {
           idMissatge: guardat._id,
           conversaId: guardat.conversa._id,
           emisorId: guardat.emisor._id,
+          data: guardat.data,
           text: guardat.text
         };
 

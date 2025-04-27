@@ -32,14 +32,11 @@ router.get('/', async(req, res) => {
                    vendedor = {
                     'id': membre._id,
                     'nom': membre.nom,
-                    'preu': membre.preu,
+                    'cognom': membre.preu,
+                    'correu': membre.correu,
                     'imatge': membre.imatge,
                     'lat': membre.lat,
                     'lng': membre.lng,
-                    'enviament': membre.enviament,
-                    'recogida': membre.recogida,
-                    'temporada': membre.temporada,
-                    'tipus': membre.tipus
                   }
 
               }
@@ -62,25 +59,63 @@ router.get('/', async(req, res) => {
     }
 });
 
+router.get('/receptor/:id', async(req, res) => {
+  const conversaId = req.params.id
+  let token = req.headers['authorization'];
+  let validar = validarToken(token);
+  let idClient = validar.id;
 
-router.get(':id', async(req, res) => {
-  const conversaId = req.params.conversaId;
+  try {
+    const resultatConversa = await Conversa.findById(conversaId).populate('membres');
+    let client;
+
+    resultatConversa.membres.forEach(membre => {
+      if(membre._id != idClient){
+        client = {
+          'id': membre._id,
+          'nom': membre.nom,
+          'cognom': membre.cognom,
+          'correu': membre.correu,
+          'imatge': membre.imatge,
+          'lat': membre.lat,
+          'lng': membre.lng,
+          }
+      }
+    });
+
+    res.status(200).send({client});
+
+  } catch (error) {
+    
+  }
+
+});
+
+
+
+
+//Obtindre missatges d'una conversa
+router.get('/:id', async(req, res) => {
+  const conversaId = req.params.id
 
   try {
     const resultat = await Missatge.find({ conversa: conversaId }).sort({ data: 1 }).populate('emisor');
+
+
 
     missatges = [];
 
     resultat.forEach(missatge => {
 
       missatges.push({
-        emisor_id: missatge.emisor._id,
+        emisor: missatge.emisor._id,
         text: missatge.text,
         data: missatge.data
       });
 
     });
 
+    // console.log(missatges);
 
     res.status(200).json(missatges);
   } catch (error) {
@@ -88,6 +123,9 @@ router.get(':id', async(req, res) => {
     res.status(500).json({ error: 'Error carregant missatges' });
   }
 });
+
+
+
 
 
 
