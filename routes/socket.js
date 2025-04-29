@@ -39,14 +39,13 @@ module.exports = function (io) {
           text: missatge.text
         });
 
-        // console.log(nouMissatge);
 
         const guardat = await nouMissatge.save();
 
         let missatgeEnviar = {
           idMissatge: guardat._id,
-          conversaId: guardat.conversa._id,
-          emisorId: guardat.emisor._id,
+          idConversa: guardat.conversa._id,
+          emisor: guardat.emisor._id,
           data: guardat.data,
           text: guardat.text
         };

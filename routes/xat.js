@@ -7,7 +7,7 @@ const Missatge = require(__dirname + '/../models/missatge.js');
 
 let router = express.Router();
 
-//Llistat de les converses del usuario que ha iniciat sessió
+//Llistat de les converses del usuari que ha iniciat sessió
 router.get('/', async(req, res) => {
     try {
         let token = req.headers['authorization'];
@@ -23,6 +23,7 @@ router.get('/', async(req, res) => {
 
           let xats = [];
           let vendedor;
+
 
           resultat.forEach(conversa => {
 
@@ -59,6 +60,8 @@ router.get('/', async(req, res) => {
     }
 });
 
+
+//Client receptor de la conversa
 router.get('/receptor/:id', async(req, res) => {
   const conversaId = req.params.id
   let token = req.headers['authorization'];
@@ -89,6 +92,32 @@ router.get('/receptor/:id', async(req, res) => {
     
   }
 
+});
+
+
+//Obtindre últim missatge d'una conversa
+// Obté l'últim missatge d'una conversa
+router.get('/:id/ultim', async (req, res) => {
+  const conversaId = req.params.id;
+
+  try {
+    const ultimMissatge = await Missatge
+      .findOne({ conversa: conversaId })
+      .sort({ data: -1 })
+      .populate('emisor');
+    if (!ultimMissatge) {
+      return res.status(404).json({ error: 'No hi ha missatges en aquesta conversa' });
+    }
+
+    res.status(200).json({
+      emisor: ultimMissatge.emisor._id,
+      text: ultimMissatge.text,
+      data: ultimMissatge.data
+    });
+  } catch (error) {
+    console.error('Error obtenint l\'últim missatge:', error);
+    res.status(500).json({ error: 'Error obtenint l\'últim missatge' });
+  }
 });
 
 
