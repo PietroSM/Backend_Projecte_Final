@@ -11,6 +11,7 @@ const Client = require(__dirname + '/../models/client.js');
 let router = express.Router();
 
 
+//Comprova si el login introduit es correcte ✔
 router.post('/login', async(req, res) => {
     let alies = req.body.alies;
     let contrasenya = req.body.contrasenya;
@@ -22,13 +23,13 @@ router.post('/login', async(req, res) => {
     if(existeixUsuari && bcrypt.compareSync(contrasenya,existeixUsuari.contrasenya)){
         res.status(200).send({accesToken: auth.generarToken(existeixUsuari.id ,alies, existeixUsuari.rol)});
     }else{
-        res.status(401).send({error: "login incorrecte"});
+        res.status(401).send({error: "El Alies o Contrasenya es incorrecte"});
     }
 });
 
 
+//Retorna el id del usuari que ha iniciat sessió ✔
 router.get('/client', async(req, res) => {
-
     let token = req.headers['authorization'];
     let validar = validarToken(token);
     let idClient = validar.id;
@@ -135,26 +136,20 @@ router.post('/registrar', async(req, res) => {
 });
 
 
-
-
+//Valida Si el token es valid ✔
 router.get('/validar', async(req, res) => {
     let token = req.headers['authorization'];
 
     try{
         if(validarToken(token)){
-            console.log("piola");
             res.status(200).send({result: true});
         }else {
-            console.log("piolant");
             res.status(403).send({result: false});
         }
     } catch(error){
-        console.log(error);
         res.send({result: false})
     }
 });
-
-
 
 
 module.exports = router;
