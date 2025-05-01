@@ -4,14 +4,14 @@ const mongoose = require('mongoose');
 let userSchema = new mongoose.Schema({
     alies: {
         type: String,
-        required: true,
+        required: [true, 'El Alies es obligatori.'],
         unique: true,
-        minlength: 4
+        minlength: [4, 'El Alies es massa curt.']
     },
     contrasenya: {
         type: String,
-        required: true,
-        minlength: 8
+        required: [true, 'La contrasenya es obligatoria.'],
+        minlength: [8, 'La contrasenya es massa curta.']
     },
     rol: {
         type: String,
