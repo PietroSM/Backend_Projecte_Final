@@ -117,12 +117,11 @@ router.get('/:id', async(req, res) => {
 });
 
 
-
-//TODO Fer les comprovacions de que les dades estan be i no ni ha errors d'unics
+//TODO faltaria la ruta de imatges en desplegament
+//Inserta un nou producte asociat a un client
 router.post('/afegir', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);
-    
     let idClient = resultat.id;
 
 
@@ -140,7 +139,6 @@ router.post('/afegir', async(req, res) => {
         fs.writeFile(uploadPath, buffer, async (error) => {
 
             if(error){
-                console.log(error);
                 return res.status(500).json({error: "Error al guardar la imatge"});
             }
 
@@ -155,15 +153,47 @@ router.post('/afegir', async(req, res) => {
                 enviament: req.body.enviament,
                 recogida: req.body.recogida,
                 temporada: req.body.temporada,
-                tipus: req.body.tipus
+                tipus: req.body.tipus,
+                adresa: req.body.adresa
             });
 
             const resultat = await nouProducte.save();
-            res.status(201).send({});
+            res.status(201).send({id: resultat._id});
         });
 
     }catch(error){
-        res.status(400).send({error: "Error al afegir un producte"});
+        
+        let errors = {
+            general: 'Error al afegir un producte'
+        }
+        
+        if(error.errors){
+            if(error.errors.nom){
+                errors.nom = error.errors.nom.message;
+            }
+            if(error.errors.stock){
+                errors.stock = error.errors.stock.message;
+            }
+            if(error.errors.preu){
+                errors.preu = error.errors.preu.message;
+            }
+            if(error.errors.lat){
+                errors.lat = error.errors.lat.message;
+            }
+            if(error.errors.lng){
+                errors.lng = error.errors.lng.message;
+            }
+            if(error.errors.adresa){
+                errors.adresa = error.errors.adresa.message;
+            }
+            if(error.errors.temporada){
+                errors.temporada = error.errors.temporada.message;
+            }
+            if(error.errors.tipus){
+                errors.tipus = error.errors.tipus.message;
+            }
+        }        
+        res.status(400).send({errors});
     }
 
 });

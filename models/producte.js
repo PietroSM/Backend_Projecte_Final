@@ -4,9 +4,9 @@ const mongoose = require('mongoose');
 let producteSchema = new mongoose.Schema({
     nom: {
         type: String,
-        required: true,
-        minlength: 5,
-        maxlength: 15
+        required: [true, 'El Nom es obligatori.'],
+        minlength: [5, 'El Nom es massa curt.'],
+        maxlength: [15, 'El Nom es massa llarg.']
     },
     client: {
         type: mongoose.Schema.Types.ObjectId,
@@ -15,28 +15,28 @@ let producteSchema = new mongoose.Schema({
     },
     stock: {
         type: Number,
-        min: 0,
-        required: true
+        min: [1, 'El Stock ha de ser positiu.'],
+        required: [true, 'El Stock es obligatori']
     },
     preu: {
         type: Number,
-        min: 0.01,
-        required: true
+        min: [0.01, 'El Preu ha de ser positu'],
+        required: [true, 'El Preu es obligatori']
     },
     imatge: {
         type: String
     },
     lat:{
         type: Number,
-        required: true,
+        required: [true, 'La Lat es obligatoria.'],
     },
     lng:{
         type: Number,
-        required: true
+        required: [true, 'La Lng es obligatoria.']
     },
     adresa:{
         type: String,
-        maxlength: 100
+        maxlength: [100, 'L\'Adreça es molt llarga.']
     },
     enviament: {
         type: Boolean
@@ -46,12 +46,12 @@ let producteSchema = new mongoose.Schema({
     },
     temporada: {
         type: String,
-        required: true,
+        required: [true, 'La Temporada es obligatoria'],
         enum: ['Hivern', 'Tardor', 'Primavera', 'Estiu']
     },
     tipus: {
         type: String,
-        required: true,
+        required: [true, 'El tipus es obligatori'],
         enum: ['Creilla', 'Taronja', 'Raim', 'Coliflor', 'Tomaca', 'Maduixa'] //TODO
     }
 });
