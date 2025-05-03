@@ -67,6 +67,106 @@ router.get('/', async(req, res) => {
 });
 
 
+
+
+//Edita un producte eixstent
+router.put('/:id/edit', async(req, res) => {
+    let token = req.headers['authorization'];
+    let validar = validarToken(token);
+    let idClient = validar.id;
+
+    try {
+        const resultatProducte = await Producte.findById(req.params.id).populate('client');
+
+        if(resultatProducte && resultatProducte.client._id == idClient){
+            
+            resultatProducte.nom = req.body.nom;
+            resultatProducte.stock = req.body.stock;
+            resultatProducte.preu = req.body.preu;
+            resultatProducte.lat = req.body.lat;
+            resultatProducte.lng = req.body.lng;
+            resultatProducte.enviament = req.body.enviament;
+            resultatProducte.recogida = req.body.recogida;
+            resultatProducte.temporada = req.body.temporada;
+            resultatProducte.tipus = req.body.tipus;
+            
+
+            if(req.body.imatge && req.body.imatge != resultatProducte.imatge){
+                //Eliminar el encabeçat de dades base64 si està present
+                const base64Data = req.body.imatge.replace(/^data:image\/\w+;base64,/, '');
+                const buffer = Buffer.from(base64Data, 'base64');
+
+
+                //Generar un nom unic per a la imatge
+                const nomImatge = `image_${Date.now()}.png`;
+                const uploadPath = path.join(__dirname,"../public/productes", nomImatge);
+
+                
+                if (resultatProducte.imatge) {
+                    const imatgeAntigaPath = path.join(__dirname, "../public/productes", path.basename(resultatProducte.imatge));
+                    fs.unlink(imatgeAntigaPath, (err) => {
+                        if (err) {
+                            console.error('Error al esborrar la imatge antiga:', err);
+                        }
+                    });
+                }
+
+                fs.writeFile(uploadPath, buffer, async (error) => {
+                    if(error){
+                        return res.status.json({error: "Error al editar la imatge."});
+                    }
+                    console.log(nomImatge);
+                    resultatProducte.imatge = `http://localhost:8080/public/productes/${nomImatge}`;
+                    console.log( resultatProducte.imatge);
+                    
+                    const resultat = await resultatProducte.save();
+                    res.status(201).send({id: resultat._id});
+
+                });
+            } else {
+                const resultat = await resultatProducte.save();
+                res.status(201).send({id: resultat._id});
+            }
+        } else {
+            res.status(400).send({error: 'Producte no trobat'});
+        }
+
+    } catch (error) {
+        let errors = {
+            general: 'Error al editar un producte'
+        }
+        
+        if(error.errors){
+            if(error.errors.nom){
+                errors.nom = error.errors.nom.message;
+            }
+            if(error.errors.stock){
+                errors.stock = error.errors.stock.message;
+            }
+            if(error.errors.preu){
+                errors.preu = error.errors.preu.message;
+            }
+            if(error.errors.lat){
+                errors.lat = error.errors.lat.message;
+            }
+            if(error.errors.lng){
+                errors.lng = error.errors.lng.message;
+            }
+            if(error.errors.adresa){
+                errors.adresa = error.errors.adresa.message;
+            }
+            if(error.errors.temporada){
+                errors.temporada = error.errors.temporada.message;
+            }
+            if(error.errors.tipus){
+                errors.tipus = error.errors.tipus.message;
+            }
+        }        
+        res.status(400).send({errors});
+    }
+});
+
+
 //Detalls d'un producte específic.
 router.get('/:id', async(req, res) => {
     try{
@@ -92,9 +192,11 @@ router.get('/:id', async(req, res) => {
                 'lat': resultat.lat,
                 'lng': resultat.lng,
                 'enviament': resultat.enviament,
+                'recogida': resultat.recogida,
                 'temporada': resultat.temporada,
                 'tipus': resultat.tipus,
                 'id': resultat._id,
+                'adresa': resultat.adresa,
                 'client': {
                     'id': resultat.client._id,
                     'nom': resultat.client.nom,
@@ -197,5 +299,8 @@ router.post('/afegir', async(req, res) => {
     }
 
 });
+
+
+
 
 module.exports = router;
