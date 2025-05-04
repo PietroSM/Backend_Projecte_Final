@@ -5,44 +5,83 @@ const fs = require('fs');
 const path = require('path');
 
 const Cistella = require(__dirname+'/../models/cistella.js');
+const Producte = require(__dirname+'/../models/producte.js');
 
 
 let router = express.Router();
 
-//TODO arreglar que se puguen guardar mes duna cosa en la cistella
-//TODO falta restar eixa quantitat al producte
+
+//Guardar un producte en la cistella del client ✔
 router.post('/', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);
-    
     let idClient = resultat.id;
 
     
     try{
+        const existeixCistella = await Cistella.findOne({ client: idClient })
+        .populate({
+            path: 'productes.producte',
+            populate: {
+                path: 'client',
+                model: 'clients'
+            }
+        })
+        .lean();
+
+        const producteEditar = await Producte.findById(req.body.idProducte);
+
         
-        const existeixCistella = await Cistella.find({
-            client : idClient
-        });
-        
-        
-        if(existeixCistella > 0){
+        if(existeixCistella){
+
+            //Busca si existeix eixe producte en la cistella
+            const existeixProducte = existeixCistella.productes
+            .some(p => p.producte._id.toString() === req.body.idProducte);
+
             
-            
-            const afegirProducte = await Cistella.findOneAndUpdate(
-                {client: idClient},
-                { $push : {productes : {
-                    producte: req.body.idProducte,
-                    quantitat: req.body.quantitat,
-                    preu: req.body.preuTotal
-                }} },
+            //Comprovar si ni ha suficient stock
+            if (producteEditar.stock < req.body.quantitat) {
+                return res.status(400).json({ error: 'No hi ha suficient stock disponible' });
+            }
+
+
+            //Llevar quantitat al producte
+            const updateProducte = await Producte.findOneAndUpdate(
+                {_id: req.body.idProducte},
+                { $inc: { stock: -req.body.quantitat } },
                 { new: true }
             );
-            
-            if(!afegirProducte){
-                res.status(404).send({error: "No s'ha trobat la cistella"});
+                
+
+            if(existeixProducte){
+                const afegirProducte1 = await Cistella.findOneAndUpdate(
+                    { client: idClient, "productes.producte": req.body.idProducte },
+                    { 
+                        $inc: {
+                            "productes.$.quantitat": req.body.quantitat,
+                            "productes.$.preu": req.body.preuTotal
+                        }
+                    },
+                    { new: true }
+                );
+    
+                res.status(200).send({ resultat: "S'ha actualitzat el producte en la cistella correctament" });
+    
+            }else{
+                const afegirProducte2 = await Cistella.findOneAndUpdate(
+                    {client: idClient},
+                    { $push : {productes : {
+                        producte: req.body.idProducte,
+                        quantitat: req.body.quantitat,
+                        preu: req.body.preuTotal
+                    }} },
+                    { new: true }
+                );
+                res.status(201).send({resultat: "S'ha afegit correctament"});
+
             }
-            
-            res.status(201).send({resultat: "S'ha afegit correctament"});
+
+        
         }else{
             
             const novaCistella = new Cistella({
@@ -53,16 +92,27 @@ router.post('/', async(req, res) => {
                     preu: req.body.preuTotal
                 }]
             });
-            
-            console.log("hola");
+
+
+            //Comprovar si ni ha suficient stock
+            if (producteEditar.stock < req.body.quantitat) {
+                return res.status(400).json({ error: 'No hi ha suficient stock disponible' });
+            }
+
+
+            //Llevar quantitat al producte
+            const updateProducte = await Producte.findOneAndUpdate(
+                {_id: req.body.idProducte},
+                { $inc: { stock: -req.body.quantitat } },
+                { new: true }
+            );
 
             const resultatNovaCistella = await novaCistella.save();
-
-            // console.log("hola" + resultatNovaCistella);
 
             res.status(201).send({resultat: "S'ha afegit correctament" })
         }
     } catch(error){
+        console.log(error);
         res.status(500).send({error: "Error al afegir a la cistella"});
     }
 });

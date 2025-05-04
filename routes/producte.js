@@ -68,8 +68,8 @@ router.get('/', async(req, res) => {
 
 
 
-
-//Edita un producte eixstent
+//TODO Faltaria la ruta d'imatges en desplegament
+//Edita un producte eixstent ✔
 router.put('/:id/edit', async(req, res) => {
     let token = req.headers['authorization'];
     let validar = validarToken(token);
@@ -219,7 +219,7 @@ router.get('/:id', async(req, res) => {
 });
 
 
-//TODO faltaria la ruta de imatges en desplegament
+//TODO faltaria la ruta d'imatges en desplegament
 //Inserta un nou producte asociat a un client
 router.post('/afegir', async(req, res) => {
     let token = req.headers['authorization'];
