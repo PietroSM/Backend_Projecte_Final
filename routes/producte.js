@@ -67,6 +67,25 @@ router.get('/', async(req, res) => {
 });
 
 
+router.put('/borrar', async(req, res) => {
+    try {
+        const producteActualitzat = await Producte.findByIdAndUpdate(
+            req.body.id,
+            {borrat: true},
+            {new: true}
+        );
+
+        if(!producteActualitzat){
+            return res.status(404).send({error: "Producte no trobat"});
+        }
+
+        res.status(200).send({});
+
+    } catch (error) {
+        res.status(500).send({error: "Error al eliminar un producte"});
+    }
+});
+
 
 //TODO Faltaria la ruta d'imatges en desplegament
 //Edita un producte eixstent ✔
@@ -299,6 +318,8 @@ router.post('/afegir', async(req, res) => {
     }
 
 });
+
+
 
 
 

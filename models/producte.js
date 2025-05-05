@@ -53,7 +53,11 @@ let producteSchema = new mongoose.Schema({
         type: String,
         required: [true, 'El tipus es obligatori'],
         enum: ['Creilla', 'Taronja', 'Raim', 'Coliflor', 'Tomaca', 'Maduixa'] //TODO
-    }
+    },
+    borrat: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 
