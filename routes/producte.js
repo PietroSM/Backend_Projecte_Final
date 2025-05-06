@@ -12,6 +12,10 @@ let router = express.Router();
 
 //Llistat dels productes. Afegir mine
 router.get('/', async(req, res) => {
+
+    console.log(req.body);
+    console.log(req.query);
+
     try{
         let token = req.headers['authorization'];
         let validar = validarToken(token);
@@ -19,8 +23,20 @@ router.get('/', async(req, res) => {
         let idClient = validar.id;
         let propietat = false
 
+        const resultat = await Producte.find({
+            $or: [
+                { borrat: false },
+                { borrat: { $exists: false } },
+                { borrat: null }
+              ],
+            $or: [
+                { nom: { $regex: req.query.search, $options: 'i' } },    
+                { adresa: { $regex: req.query.search, $options: 'i' } }
+              ]
+        }).populate("client");
 
-        const resultat = await Producte.find().populate("client");
+
+        console.log(resultat);
         let productes = [];
         if(resultat.length > 0){
 
@@ -41,6 +57,7 @@ router.get('/', async(req, res) => {
                     'temporada': element.temporada,
                     'tipus': element.tipus,
                     'id': element._id,
+                    'adresa': element.adresa,
                     'client': {
                         'id': element.client._id,
                         'nom': element.client.nom,
@@ -56,9 +73,19 @@ router.get('/', async(req, res) => {
             });
 
 
-            res.status(200).send({productes: productes});
+            //Paginacio
+            const pagina = req.query.pagina || 1;
+            const tamanyPagina = 12;
+            const inici = (pagina - 1) * tamanyPagina;
+            const final = inici + tamanyPagina;
+
+            const productesPaginats = productes.slice(inici, final);
+            const hiHaMes = final < productes.length;
+
+            res.status(200).send({productes: productesPaginats, niHaMes: hiHaMes});
         }else{
-            res.status(404).send({error: "No hi ha productes en el sistema"});
+            // res.status(404).send({error: "No hi ha productes en el sistema"});
+            res.status(200).send({productes: [], niHaMes: false});
         }
 
     }catch(error){
