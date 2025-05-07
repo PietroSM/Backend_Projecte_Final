@@ -25,7 +25,8 @@ router.get('/me', async(req, res) => {
                 'imatge': resultat.imatge,
                 'lat': resultat.lat,
                 'lng': resultat.lng,
-                'adresa': resultat.adresa
+                'adresa': resultat.adresa,
+                'propietat': true
             };
 
             res.status(200).send({client});
@@ -43,6 +44,7 @@ router.get('/me', async(req, res) => {
 router.put('/:id/edit', async(req, res) => {
 
     try {
+        
         const resultatClient = await Client.findById(req.params.id);
 
         if(resultatClient) {
@@ -69,6 +71,11 @@ router.put('/:id/edit', async(req, res) => {
 
 router.get('/:id', async(req, res) => {
     try {
+        let token = req.headers['authorization'];
+        let validar = validarToken(token);
+        
+        let idClient = validar.id;
+
         const resultat = await Client.findById(req.params.id);
 
         if(resultat) {
@@ -79,7 +86,8 @@ router.get('/:id', async(req, res) => {
                 'imatge': resultat.imatge,
                 'lat': resultat.lat,
                 'lng': resultat.lng,
-                'adresa': resultat.adresa
+                'adresa': resultat.adresa,
+                'propietat': resultat._id == idClient ? true : false
             };
 
             res.status(200).send({client});
