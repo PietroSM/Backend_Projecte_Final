@@ -13,9 +13,6 @@ let router = express.Router();
 //Llistat dels productes. Afegir mine
 router.get('/', async(req, res) => {
 
-    console.log(req.body);
-    console.log(req.query);
-
     try{
         let token = req.headers['authorization'];
         let validar = validarToken(token);
