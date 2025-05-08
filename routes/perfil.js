@@ -29,7 +29,7 @@ router.get('/me', async(req, res) => {
                 'propietat': true
             };
 
-            res.status(200).send({client});
+            res.status(200).send({usuari: client});
         }else{
             res.status(404).send({error: "Client no trobat."});
         }

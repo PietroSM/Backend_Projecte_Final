@@ -7,6 +7,7 @@ const producte = require(__dirname+"/routes/producte");
 const cistella = require(__dirname+"/routes/cistella");
 const comanda = require(__dirname+"/routes/comanda");
 const xat = require(__dirname+"/routes/xat");
+const perfil = require(__dirname+"/routes/perfil");
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -46,6 +47,7 @@ app.use('/producte', producte);
 app.use('/cistella', cistella);
 app.use('/comanda', comanda);
 app.use('/xat', xat);
+app.use('/perfil', perfil);
 
 
 server.listen(process.env.PORT);   
