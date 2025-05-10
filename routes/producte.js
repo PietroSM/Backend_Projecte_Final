@@ -158,9 +158,8 @@ router.put('/:id/edit', async(req, res) => {
                     if(error){
                         return res.status.json({error: "Error al editar la imatge."});
                     }
-                    console.log(nomImatge);
+
                     resultatProducte.imatge = `http://localhost:8080/public/productes/${nomImatge}`;
-                    console.log( resultatProducte.imatge);
                     
                     const resultat = await resultatProducte.save();
                     res.status(201).send({id: resultat._id});

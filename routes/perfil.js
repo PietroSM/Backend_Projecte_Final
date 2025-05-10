@@ -1,5 +1,8 @@
 const express = require('express');
 const { validarToken } = require('../auth/auth');
+const fs = require('fs');
+const path = require('path');
+const bcrypt = require('bcrypt');
 
 
 const Client = require(__dirname + '/../models/client.js');
@@ -19,6 +22,7 @@ router.get('/me', async(req, res) => {
 
         if(resultat) {
             const client = {
+                'id': resultat._id,
                 'nom': resultat.nom,
                 'cognom': resultat.cognom,
                 'correu': resultat.correu,
@@ -41,14 +45,82 @@ router.get('/me', async(req, res) => {
 
 
 
-router.put('/:id/edit', async(req, res) => {
+router.put('/:id/imatge', async(req, res) => {
 
     try {
-        
+        const resultatClient = await Client.findById(req.params.id);
+
+        if (resultatClient && req.body.imatge != resultatClient) {
+
+
+                //Eliminar el encabeçat de dades base64 si està present
+                const base64Data = req.body.imatge.replace(/^data:image\/\w+;base64,/, '');
+                const buffer = Buffer.from(base64Data, 'base64');
+
+
+                //Generar un nom unic per a la imatge
+                const nomImatge = `image_${Date.now()}.png`;
+                const uploadPath = path.join(__dirname,"../public/uploads", nomImatge);
+
+                if (resultatClient.imatge) {
+                    const imatgeAntigaPath = path.join(__dirname, "../public/uploads", path.basename(resultatClient.imatge));
+                    fs.unlink(imatgeAntigaPath, (err) => {
+                        if (err) {
+                            console.error('Error al esborrar la imatge antiga:', err);
+                        }
+                    });
+
+
+                    fs.writeFile(uploadPath, buffer, async (error) => {
+                        if(error){
+                            return res.status.json({error: "Error al editar la imatge."});
+                        }
+                        resultatClient.imatge = `http://localhost:8080/public/uploads/${nomImatge}`;
+                        
+                        const resultat = await resultatClient.save();
+                        res.status(201).send({id: resultat._id});
+    
+                    });
+
+
+                } else {
+                    res.status(400).send({error: 'Perfil no trobat'});
+                }
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+
+router.put('/:id/contrasenya', async(req, res) => {
+    try {
         const resultatClient = await Client.findById(req.params.id);
 
         if(resultatClient) {
+            resultatClient.contrasenya = bcrypt.hashSync(req.body.contrasenya, 10);
 
+            const result = await resultatClient.save();
+
+            res.status(201).send();
+        }
+
+
+    } catch (error) {
+        
+    }
+});
+
+
+
+router.put('/:id/edit', async(req, res) => {
+
+    try {
+        const resultatClient = await Client.findById(req.params.id);
+        
+        if(resultatClient) {
+            
             resultatClient.nom = req.body.nom;
             resultatClient.cognom = req.body.cognom;
             resultatClient.correu = req.body.correu;
@@ -58,12 +130,37 @@ router.put('/:id/edit', async(req, res) => {
 
             const result = await resultatClient.save();
 
-            res.status(201);
+            res.status(201).send();
         } else {
             res.status(400).send({error: "Client no trobat."});
         }
     } catch (error) {
-        res.status(500).send({error: "Error actualitzant client"});        
+        let errors = {
+            general: 'Error al editar un producte'
+        }
+
+        if(error.errors){
+            if(error.errors.nom){
+                errors.nom = error.errors.nom.message;
+            }
+            if(error.errors.cognom){
+                errors.cognom = error.errors.cognom.message;
+            }
+            if(error.errors.correu){
+                errors.correu = error.errors.correu.message;
+            }
+            if(error.errors.lat){
+                errors.lat = error.errors.lat.message;
+            }
+            if(error.errors.lng){
+                errors.lng = error.errors.lng.message;
+            }
+            if(error.errors.adresa){
+                errors.adresa = error.errors.adresa.message;
+            }
+        }
+        res.status(400).send({errors});
+
     }
 });
 
@@ -80,6 +177,7 @@ router.get('/:id', async(req, res) => {
 
         if(resultat) {
             const client = {
+                'id': resultat._id,
                 'nom': resultat.nom,
                 'cognom': resultat.cognom,
                 'correu': resultat.correu,
