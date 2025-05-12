@@ -5,12 +5,13 @@ const fs = require('fs');
 const path = require('path');
 
 const Producte = require(__dirname + '/../models/producte.js');
+const Cistella = require(__dirname + '/../models/cistella.js');
+
 
 
 let router = express.Router();
 
-
-//Llistat dels productes. Afegir mine
+// Llistat dels productes. ✔
 router.get('/', async(req, res) => {
 
     try{
@@ -20,20 +21,53 @@ router.get('/', async(req, res) => {
         let idClient = validar.id;
         let propietat = false
 
-        const resultat = await Producte.find({
-            $or: [
-                { borrat: false },
-                { borrat: { $exists: false } },
-                { borrat: null }
-              ],
-            $or: [
-                { nom: { $regex: req.query.search, $options: 'i' } },    
-                { adresa: { $regex: req.query.search, $options: 'i' } }
-              ]
-        }).populate("client");
+
+        // Comprovar si existeix la cistella
+        const existeixCistella = await Cistella.findOne({ client: idClient })
+        .populate({
+            path: 'productes.producte',
+            populate: {
+                path: 'client',
+                model: 'clients'
+            }
+        })
+        .lean();
+
+        console.log(existeixCistella);
+
+        let clientFiltratId = null;
+        if (existeixCistella && existeixCistella.productes.length > 0) {
+          // Agafem el client del primer producte
+          clientFiltratId = existeixCistella.productes[0].producte.client;
+        }
+
+        let filtre = {
+            $and: [
+              {
+                $or: [
+                  { borrat: false },
+                  { borrat: { $exists: false } },
+                  { borrat: null }
+                ]
+              },
+              {
+                $or: [
+                  { nom: { $regex: req.query.search || '', $options: 'i' } },
+                  { adresa: { $regex: req.query.search || '', $options: 'i' } }
+                ]
+              }
+            ]
+        };
+    
+        // Si tenim client, el afix al filtre
+        if (clientFiltratId) {
+        filtre.$and.push({ client: clientFiltratId });
+        }
 
 
-        console.log(resultat);
+        const resultat = await Producte.find(filtre).populate("client");
+
+
         let productes = [];
         if(resultat.length > 0){
 
@@ -41,6 +75,8 @@ router.get('/', async(req, res) => {
             resultat.forEach(element => {
                 if(idClient == element.client._id){
                     propietat = true;
+                } else {
+                    propietat = false;
                 }
 
                 const producte = {
@@ -81,16 +117,17 @@ router.get('/', async(req, res) => {
 
             res.status(200).send({productes: productesPaginats, niHaMes: hiHaMes});
         }else{
-            // res.status(404).send({error: "No hi ha productes en el sistema"});
             res.status(200).send({productes: [], niHaMes: false});
         }
 
     }catch(error){
+        console.log(error);
         res.status(500).send({error: "Error obtenint productes"});
     }
 });
 
 
+// Esborra un producte existent ✔
 router.put('/borrar', async(req, res) => {
     try {
         const producteActualitzat = await Producte.findByIdAndUpdate(
@@ -112,7 +149,7 @@ router.put('/borrar', async(req, res) => {
 
 
 //TODO Faltaria la ruta d'imatges en desplegament
-//Edita un producte eixstent ✔
+// Edita un producte eixstent ✔
 router.put('/:id/edit', async(req, res) => {
     let token = req.headers['authorization'];
     let validar = validarToken(token);
@@ -209,10 +246,9 @@ router.put('/:id/edit', async(req, res) => {
 });
 
 
-//Detalls d'un producte específic.
+// Detalls d'un producte específic. ✔
 router.get('/:id', async(req, res) => {
     try{
-        console.log("hola");
         const resultat = await Producte.findById(req.params.id).populate('client');
         let token = req.headers['authorization'];
         let validar = validarToken(token);
@@ -262,7 +298,7 @@ router.get('/:id', async(req, res) => {
 
 
 //TODO faltaria la ruta d'imatges en desplegament
-//Inserta un nou producte asociat a un client
+// Inserta un nou producte asociat a un client ✔
 router.post('/afegir', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);

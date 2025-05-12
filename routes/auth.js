@@ -11,7 +11,7 @@ const Client = require(__dirname + '/../models/client.js');
 let router = express.Router();
 
 
-//Comprova si el login introduit es correcte ✔
+// Comprova si el login introduit es correcte ✔
 router.post('/login', async(req, res) => {
     let alies = req.body.alies;
     let contrasenya = req.body.contrasenya;
@@ -28,7 +28,7 @@ router.post('/login', async(req, res) => {
 });
 
 
-//Retorna el id del usuari que ha iniciat sessió ✔
+// Retorna el id del usuari que ha iniciat sessió ✔
 router.get('/client', async(req, res) => {
     let token = req.headers['authorization'];
     let validar = validarToken(token);
@@ -136,7 +136,7 @@ router.post('/registrar', async(req, res) => {
 });
 
 
-//Valida Si el token es valid ✔
+// Valida Si el token es valid ✔
 router.get('/validar', async(req, res) => {
     let token = req.headers['authorization'];
 
