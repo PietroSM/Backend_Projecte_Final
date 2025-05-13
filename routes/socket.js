@@ -5,16 +5,16 @@ const Client = require('../models/client');
 const { validarToken } = require('../auth/auth');
 
 
-//TODO
+
 module.exports = function (io) {
   io.on('connection', (socket) => {
-    console.log(`🔌 Connectat: ${socket.id}`);
+    console.log(`Connectat: ${socket.id}`);
 
 
     // Unir a una conversa (si existeix)
     socket.on('joinConversa', (conversaId) => {
       socket.join(conversaId);
-      console.log(`📥 Socket ${socket.id} s'ha unit a la conversa ${conversaId}`);
+      console.log(`Socket ${socket.id} s'ha unit a la conversa ${conversaId}`);
     });
 
 
@@ -54,7 +54,7 @@ module.exports = function (io) {
         io.to(missatge.idConversa.toString()).emit('nouMissatge', missatgeEnviar);
 
       } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('Error:', error);
         socket.emit('errorMissatge', { error: 'No s’ha pogut enviar el missatge.' });
       }
     });
@@ -63,7 +63,7 @@ module.exports = function (io) {
 
     // Quan un client es desconnecta
     socket.on('disconnect', () => {
-      console.log(`❌ Desconnectat: ${socket.id}`);
+      console.log(`Desconnectat: ${socket.id}`);
     });
   });
 };

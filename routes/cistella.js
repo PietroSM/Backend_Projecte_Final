@@ -11,7 +11,7 @@ const Producte = require(__dirname+'/../models/producte.js');
 let router = express.Router();
 
 
-//Guardar un producte en la cistella del client ✔
+// Guardar un producte en la cistella del client ✔
 router.post('/', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);
@@ -118,7 +118,7 @@ router.post('/', async(req, res) => {
 });
 
 
-//Obtindre el llistat de productes de una cistella.
+// Obtindre el llistat de productes de una cistella. ✔
 router.get('/', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);
@@ -129,9 +129,6 @@ router.get('/', async(req, res) => {
     let preuTotal = 0;
 
     try {
-        // const existeixCistella = await Cistella.findOne({
-        //     client : idClient
-        // }).populate('productes.producte').populate('productes.producte.client').lean();
         const existeixCistella = await Cistella.findOne({ client: idClient })
             .populate({
                 path: 'productes.producte',
@@ -147,7 +144,6 @@ router.get('/', async(req, res) => {
             
             existeixCistella.productes.forEach(element => {
 
-                // console.log(element);
                 productes.push({
                     producte: {
                                 'nom': element.producte.nom,
@@ -177,41 +173,53 @@ router.get('/', async(req, res) => {
                     preu: element.preu
                 });
 
-                // console.log("preu" + element.preu);
                 preuTotal += element.preu
-                // console.log(preuTotal);
-
 
             });
-            // console.log(JSON.stringify(productes, null, 2));
-
-
-
-            const resultatCistella = {
-                productes: productes,
-                idCistella: existeixCistella._id,
-                preuTotal: preuTotal
-            };
 
             let idCistella =  existeixCistella._id;
-            // console.log(resultatCistella);
 
             res.status(200).send({productes, idCistella, preuTotal});
 
-        } else {
-
         }
-
-
-
     } catch (error) {
-        
+        res.status(500).send({error: "Error Obtenint la cistella"});
     }
-
-
 });
 
 
+// Eliminar un producte de la cistella ✔
+router.delete('/:id', async (req, res) => {
+    try {
+        let token = req.headers['authorization'];
+        let resultat = validarToken(token);
+        let idClient = resultat.id;
+
+        const existeixCistella = await Cistella.findOne({ client: idClient });
+
+
+        if (!existeixCistella) {
+            return res.status(404).json({ error: 'Cistella no trobada' });
+        }
+
+        existeixCistella.productes = 
+            existeixCistella.productes.filter((producte) => 
+                producte.producte.toString() != req.params.id);
+        
+
+        // Comprovem si queden productes en la cistella
+        if (existeixCistella.productes.length == 0) {
+            await Cistella.findByIdAndDelete(existeixCistella._id);
+            return res.status(200).send({});
+        } else {
+            await existeixCistella.save();
+            return res.status(200).send({});
+        }
+
+    } catch (error) {
+        return res.status(500).send({ error: 'Error eliminant el producte de la cistella.' });
+    }
+});
 
 
 module.exports = router;

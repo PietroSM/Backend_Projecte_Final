@@ -7,7 +7,7 @@ const Missatge = require(__dirname + '/../models/missatge.js');
 
 let router = express.Router();
 
-//Llistat de les converses del usuari que ha iniciat sessió
+// Llistat de les converses del usuari que ha iniciat sessió ✔
 router.get('/', async(req, res) => {
     try {
         let token = req.headers['authorization'];
@@ -49,19 +49,15 @@ router.get('/', async(req, res) => {
             });
 
           });
-          
-
-          console.log(xats);
-
           res.status(200).send({xats});
         }
     } catch (error) {
-        console.log(error);
+      res.status(500).send({error: "Error obtenint el llistat de xats"});
     }
 });
 
 
-//Client receptor de la conversa
+// Client receptor de la conversa ✔
 router.get('/receptor/:id', async(req, res) => {
   const conversaId = req.params.id
   let token = req.headers['authorization'];
@@ -89,14 +85,12 @@ router.get('/receptor/:id', async(req, res) => {
     res.status(200).send({client});
 
   } catch (error) {
-    
+    res.status(500).send({error: "Error obtenint el receptor"});
   }
-
 });
 
 
-//Obtindre últim missatge d'una conversa
-// Obté l'últim missatge d'una conversa
+// Obtindre últim missatge d'una conversa ✔
 router.get('/:id/ultim', async (req, res) => {
   const conversaId = req.params.id;
 
@@ -115,7 +109,6 @@ router.get('/:id/ultim', async (req, res) => {
       data: ultimMissatge.data
     });
   } catch (error) {
-    console.error('Error obtenint l\'últim missatge:', error);
     res.status(500).json({ error: 'Error obtenint l\'últim missatge' });
   }
 });
@@ -123,14 +116,12 @@ router.get('/:id/ultim', async (req, res) => {
 
 
 
-//Obtindre missatges d'una conversa
+// Obtindre missatges d'una conversa ✔
 router.get('/:id', async(req, res) => {
   const conversaId = req.params.id
 
   try {
     const resultat = await Missatge.find({ conversa: conversaId }).sort({ data: 1 }).populate('emisor');
-
-
 
     missatges = [];
 
@@ -144,49 +135,42 @@ router.get('/:id', async(req, res) => {
 
     });
 
-    // console.log(missatges);
-
     res.status(200).json(missatges);
   } catch (error) {
-    console.error('Error carregant missatges:', error);
     res.status(500).json({ error: 'Error carregant missatges' });
   }
 });
 
 
-
-
-
-
 //Crear Nova Conversa
 //TODO repassar sintaxis
 router.post('/', async (req, res) => {
-    let token = req.headers['authorization'];
-    let validar = validarToken(token);
-  
-    let idClient = validar.id;
-    let idVendedor = req.body.idVendedor;
-  
-    if (!idClient || !idVendedor) {
-      return res.status(400).json({ error: 'Falten participants' });
+  let token = req.headers['authorization'];
+  let validar = validarToken(token);
+
+  let idClient = validar.id;
+  let idVendedor = req.body.idVendedor;
+
+  if (!idClient || !idVendedor) {
+    return res.status(400).send({ error: 'Falten participants' });
+  }
+
+  try {
+    let conversa = await Conversa.findOne({
+      membres: { $all: [idClient, idVendedor], $size: 2 }
+    });
+
+    if (!conversa) {
+      conversa = new Conversa({ membres: [idClient, idVendedor] });
+      await conversa.save();
     }
-  
-    try {
-      let conversa = await Conversa.findOne({
-        membres: { $all: [idClient, idVendedor], $size: 2 }
-      });
-  
-      if (!conversa) {
-        conversa = new Conversa({ membres: [idClient, idVendedor] });
-        await conversa.save();
-      }
-  
-      res.status(200).json(conversa);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Error en crear o trobar la conversa' });
-    }
-  });
+
+    res.status(200).send(conversa);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'Error en crear o trobar la conversa' });
+  }
+});
   
 
 

@@ -11,7 +11,7 @@ const Cistella = require(__dirname+'/../models/cistella.js');
 
 let router = express.Router();
 
-
+// Llistat de comandes realitzades per el client ✔
 router.get('/', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);
@@ -99,18 +99,17 @@ router.get('/', async(req, res) => {
 
 
             });
-
-            console.log(comandes);
             res.status(200).send({comandes});
         }
         
     } catch (error) {
-        
+        res.status(500).send({error: "Error llistant les comandes"});
+
     }
 });
 
 
-
+// Llistat de comandes on el usuari es el venedor ✔
 router.get('/vendes', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);
@@ -197,19 +196,16 @@ router.get('/vendes', async(req, res) => {
 
 
         });
-
-        console.log(comandes);
         res.status(200).send({comandes});
     }
         
     } catch (error) {
-        
+        res.status(200).send({error: "Error llistant les comandes"});
     }
-
-
 });
 
 
+// Modifica el estat de la comanda ✔
 router.put('/estat', async(req, res) => {
     try {
 
@@ -220,17 +216,17 @@ router.put('/estat', async(req, res) => {
         );
 
         if(resultat){
-            console.log("hola");
             res.status(200);
         }
 
 
     } catch (error) {
-        
+        res.status(500).send({error: "Error modificant el estat de la comanda"});
     }
 });
 
 
+// Detalls d'una comanda ✔
 router.get('/:id', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);
@@ -314,16 +310,17 @@ router.get('/:id', async(req, res) => {
 
 
         } else {
-
+            res.status(400).send({error: "Comanda no trobada."});
         }
 
     } catch (error){
+        res.status(500).send({error: "Error mostrant comanda"});
 
     }
-
 });
 
 
+// Converteix una cistella en una comanda ✔
 router.post('/', async(req, res) => {
     let token = req.headers['authorization'];
     let resultat = validarToken(token);
@@ -334,7 +331,6 @@ router.post('/', async(req, res) => {
         let productesNou = [];
 
         req.body.productes.forEach(element => {
-            // console.log(element);
             productesNou.push({
                 producte: element.producte.id,
                 quantitat: element.quantitat,
@@ -361,8 +357,8 @@ router.post('/', async(req, res) => {
         res.status(200).send({idComanda});
 
     } catch (error) {
-        console.log(error);
-        res.status(500).send({error});
+
+        res.status(500).send({error: "Error realitzant la comanda"});
 
     }
 });

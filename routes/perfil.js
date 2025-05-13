@@ -10,7 +10,7 @@ const Client = require(__dirname + '/../models/client.js');
 let router = express.Router();
 
 
-
+// mostrar el perfil del usuari que ha iniciat sessió ✔
 router.get('/me', async(req, res) => {
     try {
         let token = req.headers['authorization'];
@@ -44,7 +44,7 @@ router.get('/me', async(req, res) => {
 });
 
 
-
+// Edició d'imatge ✔
 router.put('/:id/imatge', async(req, res) => {
 
     try {
@@ -89,11 +89,11 @@ router.put('/:id/imatge', async(req, res) => {
         }
 
     } catch (error) {
-        console.log(error);
+        res.status(500).send({error: 'Error modificant l\'imatge'});
     }
 });
 
-
+// Edició de contrasenya ✔
 router.put('/:id/contrasenya', async(req, res) => {
     try {
         const resultatClient = await Client.findById(req.params.id);
@@ -106,14 +106,13 @@ router.put('/:id/contrasenya', async(req, res) => {
             res.status(201).send();
         }
 
-
     } catch (error) {
-        
+        res.status(500).send({error: "Error modificant la contrasenya."});
     }
 });
 
 
-
+// Edició de dades ✔
 router.put('/:id/edit', async(req, res) => {
 
     try {
@@ -165,7 +164,7 @@ router.put('/:id/edit', async(req, res) => {
 });
 
 
-
+// Dades d'un usuari ✔
 router.get('/:id', async(req, res) => {
     try {
         let token = req.headers['authorization'];
