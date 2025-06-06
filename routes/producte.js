@@ -33,10 +33,8 @@ router.get('/', async(req, res) => {
         })
         .lean();
 
-        console.log(existeixCistella);
-
         let clientFiltratId = null;
-        if (existeixCistella && existeixCistella.productes.length > 0) {
+        if (existeixCistella && existeixCistella.productes.length > 0 && req.query.propis == '0') {
           // Agafem el client del primer producte
           clientFiltratId = existeixCistella.productes[0].producte.client;
         }
@@ -55,7 +53,8 @@ router.get('/', async(req, res) => {
                   { nom: { $regex: req.query.search || '', $options: 'i' } },
                   { adresa: { $regex: req.query.search || '', $options: 'i' } }
                 ]
-              }
+              },
+              { temporada: { $regex: req.query.temporada || '', $options: 'i' }}
             ]
         };
     
@@ -63,6 +62,8 @@ router.get('/', async(req, res) => {
         if (clientFiltratId) {
         filtre.$and.push({ client: clientFiltratId });
         }
+
+
 
 
         const resultat = await Producte.find(filtre).populate("client");
@@ -87,6 +88,7 @@ router.get('/', async(req, res) => {
                     'lat': element.lat,
                     'lng': element.lng,
                     'enviament': element.enviament,
+                    'recogida': element.recogida,
                     'temporada': element.temporada,
                     'tipus': element.tipus,
                     'id': element._id,
@@ -126,7 +128,6 @@ router.get('/', async(req, res) => {
     }
 });
 
-
 // Esborra un producte existent ✔
 router.put('/borrar', async(req, res) => {
     try {
@@ -148,7 +149,6 @@ router.put('/borrar', async(req, res) => {
 });
 
 
-//TODO Faltaria la ruta d'imatges en desplegament
 // Edita un producte eixstent ✔
 router.put('/:id/edit', async(req, res) => {
     let token = req.headers['authorization'];
@@ -297,7 +297,6 @@ router.get('/:id', async(req, res) => {
 });
 
 
-//TODO faltaria la ruta d'imatges en desplegament
 // Inserta un nou producte asociat a un client ✔
 router.post('/afegir', async(req, res) => {
     let token = req.headers['authorization'];
