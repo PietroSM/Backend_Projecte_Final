@@ -38,7 +38,6 @@ router.get('/client', async(req, res) => {
 });
 
 
-//TODO faltaria canviar la ruta de imatges en desplegament
 // Registra un nou client/ususari ✔   
 router.post('/registrar', async(req, res) => {
     let idUsuari = null;
